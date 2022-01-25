@@ -121,19 +121,22 @@ I. Error Codes -
 1 - not a riff file, not a wav file, or wav file not using pcm encoding
 2 - malloc failed
 3 - feof or ferror
+4 - file couldn't be opened
+---
+II. Print a well-formatted byte -
 
-II. Print a well-formatted byte
 printf("%02x", byte);
+---
+III. Sum a series of N bytes at seriesOfBytes -
 
-III. Sum a series of N bytes at seriesOfBytes
-size_t N = 3;
-uint32_t size = 0;
-for (int8_t _i = N; _i >= 0; _i--) {
-  size = size << 8 | seriesOfBytes[_i];
+_N = ?;
+?? ?sum? = 0;
+for (_i = (_N-1); _i >= 0; _i--) {
+  ?sum? = ?sum? << 8 | ?seriesOfBytes?[_i];
 }
-
+---
 IV. Print raw bytes of data with format - 0xBE: 0xEF, where 0xBE is byte
-    position starting from pos'th data byte and 0xEF is the byte at pos
+    position starting from pos'th data byte and 0xEF is the byte at pos -
 
 size_t pos = 0;
 size_t end_pos = 100;
