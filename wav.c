@@ -108,9 +108,9 @@ int main() {
   if (feof(input_file) || ferror(input_file)) {
     return 3;
   }
+  fclose(input_file);  // Close file since nothing left to be read from it.
 
   free(riff_chunk.dataChunk.data);
-  fclose(input_file);
   return 0;
 }
 
