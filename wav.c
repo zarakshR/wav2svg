@@ -9,16 +9,18 @@
 
 // chunkSize never includes the 8 bytes from chunkID and itself
 // Everything except chunkIDs are little-endian
+// PCM data is two's-complement except for resolutions of 1-8 bits, which are
+// represented as offset binary.
 
 typedef struct {    // 24 bytes in length.
   BYTE chunkID[4];  // Should be "fmt ". Note the trailing space.
   BYTE chunkSize[4];
-  BYTE formatCode[2];  // Should be 0x10 0x00
-  BYTE channels[2];
-  BYTE sampleRate[4];
-  BYTE bytesPerSec[4];
-  BYTE blockAlign[2];
-  BYTE bitsPerSample[2];
+  BYTE formatCode[2];     // Should be 0x10 0x00 for PCM data
+  BYTE channels[2];       // No. of channels -- Also blocks per sample
+  BYTE sampleRate[4];     // Samples per second
+  BYTE byteRate[4];       // Bytes per second
+  BYTE blockAlign[2];     // Bytes per block
+  BYTE bitsPerSample[2];  // Bits per sample = 8 * Bytes per sample
 } FormatChunk;
 
 typedef struct {
@@ -89,7 +91,7 @@ int main() {
 
   fread(&riff_chunk.dataChunk.chunkSize, 4, 1, input_file);
   uint32_t data_size = 0;
-  for (int8_t _i = 3; _i >= 0; _i--) {
+  for (int8_t _i = 3; _i >= 0; _i--) {  // Calculate size of data in bytes
     data_size = data_size << 8 | riff_chunk.dataChunk.chunkSize[_i];
   }
 
