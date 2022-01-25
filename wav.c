@@ -8,13 +8,13 @@
 
 // Everything except chunk IDs are little-endian
 
-struct riffChunk {    // 12 bytes in length.
+typedef struct {      // 12 bytes in length.
   BYTE chunkID[4];    // Chunk ID. Should be "RIFF".
   BYTE chunkSize[4];  // Chunk size.
   BYTE format[4];     // Wave ID. Should be "WAVE".
-};
+} RiffChunk;
 
-struct fmtChunk {   // 24 bytes in length.
+typedef struct {    // 24 bytes in length.
   BYTE chunkID[4];  // Should be "fmt ". Note the trailing space.
   BYTE chunkSize[4];
   BYTE formatCode[2];  // Should be 0x10 0x00
@@ -23,15 +23,19 @@ struct fmtChunk {   // 24 bytes in length.
   BYTE bytesPerSec[4];
   BYTE blockAlign[2];
   BYTE bitsPerSample[2];
-};
+} FormatChunk;
 
-struct dataChunk {};
+typedef struct {
+  BYTE chunkID[4];  // Should be "data"
+  BYTE chunkSize[4];
+  BYTE* data;  // use chunkSize to malloc this
+} DataChunk;
 
 int main() {
   FILE* input_file = fopen("sample.wav", "rb");
 
-  struct riffChunk riff_chunk;
-  struct fmtChunk fmt_chunk;
+  RiffChunk riff_chunk;
+  FormatChunk fmt_chunk;
   fread(&riff_chunk, sizeof(riff_chunk), 1, input_file);
   fread(&fmt_chunk, sizeof(fmt_chunk), 1, input_file);
 
