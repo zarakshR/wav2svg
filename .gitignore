@@ -1,9 +1,8 @@
-*
-!*.*
-
 .vscode/**
-.idea/*
+docs/**
 *.wav
-.go.sh
+bytes.txt
 printbytes.c
+printbytes
+wav
 a.out
