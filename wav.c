@@ -54,15 +54,31 @@ int main() {
 }
 
 /*
-Error Codes -
+Appendix
+
+I. Error Codes -
 1 - not a riff file, not a wav file, or wav file not using pcm encoding
+2 - malloc failed
+3 - feof or ferror
+
+II. Print a well-formatted byte
+printf("%02x", byte);
+
+III. Sum a series of N bytes at seriesOfBytes
+size_t N = 3;
+uint32_t size = 0;
+for (int8_t _i = N; _i >= 0; _i--) {
+  size = size << 8 | seriesOfBytes[_i];
+}
+
+IV. Print raw bytes of data with format - 0xBE: 0xEF, where 0xBE is byte
+    position starting from pos'th data byte and 0xEF is the byte at pos
+
+size_t pos = 0;
+size_t end_pos = 100;
+for (; pos < end_pos; pos) {
+  printf("%02x: ", pos);
+  printf("%02x", *(data_chunk.data + pos));
+  printf("\n");
+}
 */
-
-// printf("%02x", byte);
-// printf("%d", size);
-
-// // Find chunkSize. _i goes from 3 to 0 because chunkSize is little endian
-// uint32_t size = 0;  // Since chunkSize is 4 bytes it can't be > 2^32
-// for (int8_t _i = 3; _i >= 0; _i--) {
-//   size = size << 8 | riff_chunk.chunkSize[_i];
-// }
