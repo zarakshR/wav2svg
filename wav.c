@@ -16,8 +16,8 @@ typedef struct {    // 24 bytes in length.
   BYTE chunkID[4];  // Should be "fmt ". Note the trailing space.
   BYTE chunkSize[4];
   BYTE formatCode[2];     // Should be 0x10 0x00 for PCM data
-  BYTE channels[2];       // No. of channels -- Also blocks per sample
-  BYTE sampleRate[4];     // Samples per second
+  BYTE channels[2];       // No. of channels -- Also samples per block
+  BYTE sampleRate[4];     // Samples per second.
   BYTE byteRate[4];       // Bytes per second
   BYTE blockAlign[2];     // Bytes per block
   BYTE bitsPerSample[2];  // Bits per sample = 8 * Bytes per sample
@@ -54,7 +54,9 @@ int main() {
   // This is the format code for PCM encoding
   BYTE fmt_pcm_sig[2] = {0x10, 0x00};
 
+  // Make sure that file is a WAVE RIFF file with PCM encoding.
   BYTE signal = 0;
+
   // Check if RIFF
   signal += (memcmp(riff_chunk.chunkID, "RIFF", BYTE_SIZE * 4));
   // Check if WAVE
@@ -66,21 +68,11 @@ int main() {
   if (signal != 0) {
     return 1;
   }
-  // File format checking done.
-
-  // We have to scan for the data chunk manually because there can be any number
-  // of undefined extra tags before or after the data chunk.
 
   // Read file until "data" bytes are found
-  // We have to read 4 bytes starting from every byte because the chunk ID bytes
-  // may not be 4-aligned due to the undefined tags not being a multiple of 4 in
-  // length like below -
-  //
-  // [______1ST-READ______]  [_____2ND-READ______]
-  // |                    | |                    |
-  // [0x00] [0x00] [d] [a]  [t] [a] [0x00] [0x00]
-  //               ^^^^^^^^T^^^^^^^
-  //                       |____________ "data" is not 4-aligned
+  // We have to read manually in groups of 4 bytes starting from every byte
+  // because the chunkID bytes may not be 4-aligned due to undefined chunks not
+  // being a multiple of 4 in length.
   BYTE buffer[4];
   for (;;) {
     fread(&buffer, 4, 1, input_file);
@@ -92,18 +84,23 @@ int main() {
   // Write "data" into chunkID
   strcpy(riff_chunk.dataChunk.chunkID, buffer);
 
+  // Read dataChunk.chunkSize. This is the total no. of PCM data bytes.
   fread(&riff_chunk.dataChunk.chunkSize, 4, 1, input_file);
+
+  // Convert dataChunk.chunkSize into an integral format by summing the 4 bytes
+  _N = 4;
   uint32_t data_size = 0;
   for (int8_t _i = 3; _i >= 0; _i--) {  // Calculate size of data in bytes
     data_size = data_size << 8 | riff_chunk.dataChunk.chunkSize[_i];
   }
 
+  // Allocate data_size bytes of data for dataChunk.data
   riff_chunk.dataChunk.data = (BYTE*)malloc(data_size);
   if (riff_chunk.dataChunk.data == NULL) {
     return 2;
   }
 
-  // Populate data
+  // Read data_size bytes of data into dataChunk.data
   fread(riff_chunk.dataChunk.data, data_size, 1, input_file);
   if (feof(input_file) || ferror(input_file)) {
     return 3;
