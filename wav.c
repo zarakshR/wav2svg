@@ -5,14 +5,10 @@
 
 #define BYTE uint8_t
 #define BYTE_SIZE sizeof(BYTE)
+#define RIFF_CHUNK_HEADER_SIZE 12
 
-// Everything except chunk IDs are little-endian
-
-typedef struct {      // 12 bytes in length.
-  BYTE chunkID[4];    // Chunk ID. Should be "RIFF".
-  BYTE chunkSize[4];  // Chunk size.
-  BYTE format[4];     // Wave ID. Should be "WAVE".
-} RiffChunk;
+// chunkSize never includes the 8 bytes from chunkID and itself
+// Everything except chunkIDs are little-endian
 
 typedef struct {    // 24 bytes in length.
   BYTE chunkID[4];  // Should be "fmt ". Note the trailing space.
@@ -31,32 +27,41 @@ typedef struct {
   BYTE* data;  // use chunkSize to malloc this
 } DataChunk;
 
+// Format chunk and data chunk are siblings and children of RIFF chunk
+typedef struct {      // 12 bytes in length.
+  BYTE chunkID[4];    // Chunk ID. Should be "RIFF".
+  BYTE chunkSize[4];  // This includes the dataChunk.data
+  BYTE format[4];     // Wave ID. Should be "WAVE".
+  FormatChunk fmtChunk;
+  DataChunk dataChunk;
+} RiffChunk;
+
 int main() {
   FILE* input_file = fopen("sample.wav", "rb");
 
   RiffChunk riff_chunk;
-  FormatChunk fmt_chunk;
-  fread(&riff_chunk, sizeof(riff_chunk), 1, input_file);
-  fread(&fmt_chunk, sizeof(fmt_chunk), 1, input_file);
 
-  BYTE signal = 0;
+  // Read RIFF chunk header
+  fread(&riff_chunk, RIFF_CHUNK_HEADER_SIZE, 1, input_file);
+  // Read format chunk
+  fread(&riff_chunk.fmtChunk, sizeof(riff_chunk.fmtChunk), 1, input_file);
 
   // This is the format code for PCM encoding
   BYTE fmt_pcm_sig[2] = {0x10, 0x00};
 
+  BYTE signal = 0;
   // Check if RIFF
   signal += (memcmp(riff_chunk.chunkID, "RIFF", BYTE_SIZE * 4));
   // Check if WAVE
   signal += (memcmp(riff_chunk.format, "WAVE", BYTE_SIZE * 4));
   // Check if using PCM encoding
-  signal += (memcmp(fmt_chunk.formatCode, fmt_pcm_sig, sizeof(fmt_pcm_sig)));
+  signal += (memcmp(riff_chunk.fmtChunk.formatCode, fmt_pcm_sig,
+                    sizeof(fmt_pcm_sig)));
 
   if (signal != 0) {
     return 1;
   }
   // File format checking done.
-
-  DataChunk data_chunk;
 
   // We have to scan for the data chunk manually because there can be any number
   // of undefined extra tags before or after the data chunk.
@@ -74,31 +79,32 @@ int main() {
   BYTE buffer[4];
   for (;;) {
     fread(&buffer, 4, 1, input_file);
-    if ((memcmp(&buffer, "data", 4)) == 0) { // "data" found
+    if ((memcmp(&buffer, "data", 4)) == 0) {  // "data" found
       break;
     }
     fseek(input_file, -3, SEEK_CUR);  // Go back 3 bytes
   }
   // Write "data" into chunkID
-  strcpy(data_chunk.chunkID, buffer);
+  strcpy(riff_chunk.dataChunk.chunkID, buffer);
 
-  fread(&data_chunk.chunkSize, 4, 1, input_file);
+  fread(&riff_chunk.dataChunk.chunkSize, 4, 1, input_file);
   uint32_t data_size = 0;
   for (int8_t _i = 3; _i >= 0; _i--) {
-    data_size = data_size << 8 | data_chunk.chunkSize[_i];
+    data_size = data_size << 8 | riff_chunk.dataChunk.chunkSize[_i];
   }
 
-  data_chunk.data = (BYTE*)malloc(data_size);
-  if (data_chunk.data == NULL) {
+  riff_chunk.dataChunk.data = (BYTE*)malloc(data_size);
+  if (riff_chunk.dataChunk.data == NULL) {
     return 2;
   }
 
   // Populate data
-  fread(data_chunk.data, data_size, 1, input_file);
+  fread(riff_chunk.dataChunk.data, data_size, 1, input_file);
   if (feof(input_file) || ferror(input_file)) {
     return 3;
   }
 
+  free(riff_chunk.dataChunk.data);
   fclose(input_file);
   return 0;
 }
@@ -128,7 +134,7 @@ size_t pos = 0;
 size_t end_pos = 100;
 for (; pos < end_pos; pos) {
   printf("%02x: ", pos);
-  printf("%02x", *(data_chunk.data + pos));
+  printf("%02x", *(riff_chunk.dataChunk.data + pos));
   printf("\n");
 }
 */
