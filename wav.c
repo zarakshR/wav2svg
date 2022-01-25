@@ -39,6 +39,9 @@ typedef struct {      // 12 bytes in length.
 } RiffChunk;
 
 int main() {
+  size_t _N;  // Variable used in loops to sum up strings of bytes. See Appendix
+  int8_t _i;  // Index variable for loop. Should not be unsigned
+
   FILE* input_file = fopen("sample.wav", "rb");
   if (input_file == NULL) {
     return 4;
@@ -90,7 +93,7 @@ int main() {
   // Convert dataChunk.chunkSize into an integral format by summing the 4 bytes
   _N = 4;
   uint32_t data_size = 0;
-  for (int8_t _i = 3; _i >= 0; _i--) {  // Calculate size of data in bytes
+  for (_i = (_N - 1); _i >= 0; _i--) {
     data_size = data_size << 8 | riff_chunk.dataChunk.chunkSize[_i];
   }
 
