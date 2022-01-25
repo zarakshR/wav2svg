@@ -6,7 +6,7 @@
 #define BYTE uint8_t
 #define BYTE_SIZE sizeof(BYTE)
 
-// Evrything expect chunk IDs are little-endian
+// Everything except chunk IDs are little-endian
 
 struct riffChunk {    // 12 bytes in length.
   BYTE chunkID[4];    // Chunk ID. Should be "RIFF".
@@ -37,12 +37,15 @@ int main() {
 
   BYTE signal = 0;
 
-  BYTE fmt_formatCode_sig[2] = {0x10, 0x00};
+  // This is the format code for PCM encoding
+  BYTE fmt_pcm_sig[2] = {0x10, 0x00};
+
+  // Check if RIFF
   signal += (memcmp(riff_chunk.chunkID, "RIFF", BYTE_SIZE * 4));
+  // Check if WAVE
   signal += (memcmp(riff_chunk.format, "WAVE", BYTE_SIZE * 4));
-  signal += (memcmp(fmt_chunk.chunkID, "fmt ", sizeof("fmt")));
-  signal += (memcmp(fmt_chunk.formatCode, fmt_formatCode_sig,
-                    sizeof(fmt_formatCode_sig)));
+  // Check if using PCM encoding
+  signal += (memcmp(fmt_chunk.formatCode, fmt_pcm_sig, sizeof(fmt_pcm_sig)));
 
   if (signal != 0) {
     return 1;
