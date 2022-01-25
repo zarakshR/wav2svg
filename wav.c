@@ -56,6 +56,49 @@ int main() {
   }
   // File format checking done.
 
+  DataChunk data_chunk;
+
+  // We have to scan for the data chunk manually because there can be any number
+  // of undefined extra tags before or after the data chunk.
+
+  // Read file until "data" bytes are found
+  // We have to read 4 bytes starting from every byte because the chunk ID bytes
+  // may not be 4-aligned due to the undefined tags not being a multiple of 4 in
+  // length like below -
+  //
+  // [______1ST-READ______]  [_____2ND-READ______]
+  // |                    | |                    |
+  // [0x00] [0x00] [d] [a]  [t] [a] [0x00] [0x00]
+  //               ^^^^^^^^T^^^^^^^
+  //                       |____________ "data" is not 4-aligned
+  BYTE buffer[4];
+  for (;;) {
+    fread(&buffer, 4, 1, input_file);
+    if ((memcmp(&buffer, "data", 4)) == 0) { // "data" found
+      break;
+    }
+    fseek(input_file, -3, SEEK_CUR);  // Go back 3 bytes
+  }
+  // Write "data" into chunkID
+  strcpy(data_chunk.chunkID, buffer);
+
+  fread(&data_chunk.chunkSize, 4, 1, input_file);
+  uint32_t data_size = 0;
+  for (int8_t _i = 3; _i >= 0; _i--) {
+    data_size = data_size << 8 | data_chunk.chunkSize[_i];
+  }
+
+  data_chunk.data = (BYTE*)malloc(data_size);
+  if (data_chunk.data == NULL) {
+    return 2;
+  }
+
+  // Populate data
+  fread(data_chunk.data, data_size, 1, input_file);
+  if (feof(input_file) || ferror(input_file)) {
+    return 3;
+  }
+
   fclose(input_file);
   return 0;
 }
