@@ -40,6 +40,9 @@ typedef struct {      // 12 bytes in length.
 
 int main() {
   FILE* input_file = fopen("sample.wav", "rb");
+  if (input_file == NULL) {
+    return 4;
+  }
 
   RiffChunk riff_chunk;
 
