@@ -146,6 +146,25 @@ int main() {
   size_t block_count;
   block_count = data_size / (samples_per_block * bytes_per_sample);
 
+  // Calculate blockAlign
+  _N = 2;
+  uint16_t blockAlign;
+  for (_i = (_N - 1); _i >= 0; _i--) {
+    blockAlign = blockAlign << 8 | riff_chunk.fmtChunk.blockAlign[_i];
+  }
+
+  // memcpy() blockAlign bytes from stream to structure. inc index by blockAlign
+
+  BYTE* data_ptr = riff_chunk.dataChunk.data;
+  BYTE block_buf[blockAlign];
+
+  // Read block_count no. of blocks
+  for (size_t index = 0; index < block_count; index++) {
+    for (_i = 0; _i < blockAlign; _i++) {
+      block_buf[_i] = *(data_ptr + (blockAlign * index) + _i);
+    }
+  }
+
   free(riff_chunk.dataChunk.data);
   return 0;
 }
