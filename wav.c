@@ -10,8 +10,8 @@
 // chunkSize never includes the 8 bytes from chunkID and itself
 // Everything except chunkIDs are little-endian
 // Block and  sample frame are synonymous
-// PCM data is signed 2's-complement except for resolutions of 1-8 bits, which are
-// represented as offset binary.
+// PCM data is signed 2's-complement except for resolutions of 1-8 bits, which
+// are represented as offset binary.
 
 typedef struct {    // 24 bytes in length.
   BYTE chunkID[4];  // Should be "fmt ". Note the trailing space.
@@ -78,16 +78,16 @@ int main() {
   // We have to read manually in groups of 4 bytes starting from every byte
   // because the chunkID bytes may not be 4-aligned due to undefined chunks not
   // being a multiple of 4 in length.
-  BYTE buffer[4];
+  BYTE buf[4];
   for (;;) {
-    fread(&buffer, 4, 1, input_file);
-    if ((memcmp(&buffer, "data", 4)) == 0) {  // "data" found
+    fread(&buf, 4, 1, input_file);
+    if ((memcmp(&buf, "data", 4)) == 0) {  // "data" found
       break;
     }
     fseek(input_file, -3, SEEK_CUR);  // Go back 3 bytes
   }
   // Write "data" into chunkID
-  strcpy(riff_chunk.dataChunk.chunkID, buffer);
+  strcpy(riff_chunk.dataChunk.chunkID, buf);
 
   // Read dataChunk.chunkSize. This is the total no. of PCM data bytes.
   fread(&riff_chunk.dataChunk.chunkSize, 4, 1, input_file);
