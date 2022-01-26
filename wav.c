@@ -9,7 +9,8 @@
 
 // chunkSize never includes the 8 bytes from chunkID and itself
 // Everything except chunkIDs are little-endian
-// PCM data is two's-complement except for resolutions of 1-8 bits, which are
+// Block and  sample frame are synonymous
+// PCM data is signed 2's-complement except for resolutions of 1-8 bits, which are
 // represented as offset binary.
 
 typedef struct {    // 24 bytes in length.
@@ -18,9 +19,10 @@ typedef struct {    // 24 bytes in length.
   BYTE formatCode[2];     // Should be 0x10 0x00 for PCM data
   BYTE channels[2];       // No. of channels -- Also samples per block
   BYTE sampleRate[4];     // Samples per second.
-  BYTE byteRate[4];       // Bytes per second
+  BYTE avgByteRate[4];    // Bytes per second
   BYTE blockAlign[2];     // Bytes per block
-  BYTE bitsPerSample[2];  // Bits per sample = 8 * Bytes per sample
+  BYTE bitsPerSample[2];  // Bits per sample = 8 * Bytes per sample. This field
+                          // is required for LPCM encoded data.
 } FormatChunk;
 
 typedef struct {
@@ -54,17 +56,17 @@ int main() {
   // Read format chunk
   fread(&riff_chunk.fmtChunk, sizeof(riff_chunk.fmtChunk), 1, input_file);
 
-  // This is the format code for PCM encoding
+  // This is the format code for linear PCM encoding
   BYTE fmt_pcm_sig[2] = {0x10, 0x00};
 
-  // Make sure that file is a WAVE RIFF file with PCM encoding.
+  // Make sure that file is a WAVE RIFF file with linear PCM encoding.
   BYTE signal = 0;
 
   // Check if RIFF
   signal += (memcmp(riff_chunk.chunkID, "RIFF", BYTE_SIZE * 4));
   // Check if WAVE
   signal += (memcmp(riff_chunk.format, "WAVE", BYTE_SIZE * 4));
-  // Check if using PCM encoding
+  // Check if using linear PCM encoding
   signal += (memcmp(riff_chunk.fmtChunk.formatCode, fmt_pcm_sig,
                     sizeof(fmt_pcm_sig)));
 
