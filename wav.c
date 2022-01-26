@@ -112,6 +112,40 @@ int main() {
   }
   fclose(input_file);  // Close file since nothing left to be read from it.
 
+  // Create block and sample structures to represent raw PCM data
+
+  // Calculate bits and bytes per sample
+  uint16_t bits_per_sample = 0;
+  _N = 2;
+  for (_i = (_N - 1); _i >= 0; _i--) {
+    bits_per_sample =
+        bits_per_sample << 8 | riff_chunk.fmtChunk.bitsPerSample[_i];
+  }
+  uint16_t bytes_per_sample = (bits_per_sample / 8);
+
+  // A struct Sample represents the instantaneous sound data for one channel
+  typedef struct {
+    BYTE* bytes[bytes_per_sample];  // LSB-MSB repr. of instantaenous amplitude
+  } Sample;
+
+  // Calculate no. of samples per block which is equal to the no. of channels
+  uint16_t samples_per_block = 0;
+  _N = 2;
+  for (_i = (_N - 1); _i >= 0; _i--) {
+    samples_per_block =
+        samples_per_block << 8 | riff_chunk.fmtChunk.channels[_i];
+  }
+
+  // A struct block represents the instantaneous sound data for all channels
+  typedef struct {
+    Sample sample[samples_per_block];  // 1 sample for each channel.
+  } Block;
+
+  // We can figure out the total no. of blocks since we have the total size of
+  // the data
+  size_t block_count;
+  block_count = data_size / (samples_per_block * bytes_per_sample);
+
   free(riff_chunk.dataChunk.data);
   return 0;
 }
