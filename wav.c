@@ -40,6 +40,15 @@ typedef struct {      // 12 bytes in length.
   DataChunk dataChunk;
 } RiffChunk;
 
+// Returns sum of first N bytes at seriesofBytes
+uint64_t sumOfNBytesAt(const BYTE* seriesOfBytes, uint32_t N) {
+  uint64_t sum = 0;
+  for (int64_t _i = (N - 1); _i >= 0; _i--) {
+    sum = sum << 8 | *(seriesOfBytes + _i);
+  }
+  return sum;
+}
+
 int main() {
   size_t _N;  // Variable used in loops to sum up strings of bytes. See Appendix
   int8_t _i;  // Index variable for loop. Should not be unsigned
@@ -93,11 +102,7 @@ int main() {
   fread(&riff_chunk.dataChunk.chunkSize, 4, 1, input_file);
 
   // Convert dataChunk.chunkSize into an integral format by summing the 4 bytes
-  _N = 4;
-  uint32_t data_size = 0;
-  for (_i = (_N - 1); _i >= 0; _i--) {
-    data_size = data_size << 8 | riff_chunk.dataChunk.chunkSize[_i];
-  }
+  uint32_t data_size = sumOfNBytesAt(riff_chunk.dataChunk.chunkSize, 4);
 
   // Allocate data_size bytes of data for dataChunk.data
   riff_chunk.dataChunk.data = (BYTE*)malloc(data_size);
@@ -115,12 +120,8 @@ int main() {
   // Create block and sample structures to represent raw PCM data
 
   // Calculate bits and bytes per sample
-  uint16_t bits_per_sample = 0;
-  _N = 2;
-  for (_i = (_N - 1); _i >= 0; _i--) {
-    bits_per_sample =
-        bits_per_sample << 8 | riff_chunk.fmtChunk.bitsPerSample[_i];
-  }
+  uint16_t bits_per_sample =
+      sumOfNBytesAt(riff_chunk.fmtChunk.bitsPerSample, 2);
   uint16_t bytes_per_sample = (bits_per_sample / 8);
 
   // A struct Sample represents the instantaneous sound data for one channel
@@ -129,12 +130,7 @@ int main() {
   } Sample;
 
   // Calculate no. of samples per block which is equal to the no. of channels
-  uint16_t samples_per_block = 0;
-  _N = 2;
-  for (_i = (_N - 1); _i >= 0; _i--) {
-    samples_per_block =
-        samples_per_block << 8 | riff_chunk.fmtChunk.channels[_i];
-  }
+  uint16_t samples_per_block = sumOfNBytesAt(riff_chunk.fmtChunk.channels, 2);
 
   // A struct block represents the instantaneous sound data for all channels
   typedef struct {
@@ -147,11 +143,7 @@ int main() {
   block_count = data_size / (samples_per_block * bytes_per_sample);
 
   // Calculate blockAlign
-  _N = 2;
-  uint16_t blockAlign;
-  for (_i = (_N - 1); _i >= 0; _i--) {
-    blockAlign = blockAlign << 8 | riff_chunk.fmtChunk.blockAlign[_i];
-  }
+  uint16_t blockAlign = sumOfNBytesAt(riff_chunk.fmtChunk.blockAlign, 2);
 
   // memcpy() blockAlign bytes from stream to structure. inc index by blockAlign
 
@@ -181,14 +173,6 @@ I. Error Codes -
 II. Print a well-formatted byte -
 
 printf("%02x", byte);
----
-III. Sum a series of N bytes at seriesOfBytes -
-
-_N = ?;
-?? ?sum? = 0;
-for (_i = (_N-1); _i >= 0; _i--) {
-  ?sum? = ?sum? << 8 | ?seriesOfBytes?[_i];
-}
 ---
 IV. Print raw bytes of data with format - 0xBE: 0xEF, where 0xBE is byte
     position starting from pos'th data byte and 0xEF is the byte at pos -
