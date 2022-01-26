@@ -41,7 +41,7 @@ typedef struct {      // 12 bytes in length.
 } RiffChunk;
 
 // Returns sum of first N bytes at seriesofBytes
-uint64_t sumOfNBytesAt(const BYTE* seriesOfBytes, uint32_t N) {
+uint64_t sumNBytesFrom(const BYTE* seriesOfBytes, uint32_t N) {
   uint64_t sum = 0;
   for (int64_t _i = (N - 1); _i >= 0; _i--) {
     sum = sum << 8 | *(seriesOfBytes + _i);
@@ -102,7 +102,7 @@ int main() {
   fread(&riff_chunk.dataChunk.chunkSize, 4, 1, input_file);
 
   // Convert dataChunk.chunkSize into an integral format by summing the 4 bytes
-  uint32_t data_size = sumOfNBytesAt(riff_chunk.dataChunk.chunkSize, 4);
+  uint32_t data_size = sumNBytesFrom(riff_chunk.dataChunk.chunkSize, 4);
 
   // Allocate data_size bytes of data for dataChunk.data
   riff_chunk.dataChunk.data = (BYTE*)malloc(data_size);
@@ -121,7 +121,7 @@ int main() {
 
   // Calculate bits and bytes per sample
   uint16_t bits_per_sample =
-      sumOfNBytesAt(riff_chunk.fmtChunk.bitsPerSample, 2);
+      sumNBytesFrom(riff_chunk.fmtChunk.bitsPerSample, 2);
   uint16_t bytes_per_sample = (bits_per_sample / 8);
 
   // A struct Sample represents the instantaneous sound data for one channel
@@ -130,7 +130,7 @@ int main() {
   } Sample;
 
   // Calculate no. of samples per block which is equal to the no. of channels
-  uint16_t samples_per_block = sumOfNBytesAt(riff_chunk.fmtChunk.channels, 2);
+  uint16_t samples_per_block = sumNBytesFrom(riff_chunk.fmtChunk.channels, 2);
 
   // A struct block represents the instantaneous sound data for all channels
   typedef struct {
@@ -143,9 +143,7 @@ int main() {
   block_count = data_size / (samples_per_block * bytes_per_sample);
 
   // Calculate blockAlign
-  uint16_t blockAlign = sumOfNBytesAt(riff_chunk.fmtChunk.blockAlign, 2);
-
-  // memcpy() blockAlign bytes from stream to structure. inc index by blockAlign
+  uint16_t blockAlign = sumNBytesFrom(riff_chunk.fmtChunk.blockAlign, 2);
 
   BYTE* data_ptr = riff_chunk.dataChunk.data;
   BYTE block_buf[blockAlign];
