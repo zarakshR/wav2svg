@@ -13,8 +13,8 @@
 // PCM data is signed 2's-complement except for resolutions of 1-8 bits, which
 // are represented as offset binary.
 
-typedef struct {      // 24 bytes in length.
-    BYTE chunkID[4];  // Should be "fmt ". Note the trailing space.
+typedef struct _FormatChunk {  // 24 bytes in length.
+    BYTE chunkID[4];           // Should be "fmt ". Note the trailing space.
     BYTE chunkSize[4];
     BYTE formatCode[2];     // Should be 0x10 0x00 for PCM data
     BYTE channels[2];       // No. of channels -- Also samples per block
@@ -25,17 +25,17 @@ typedef struct {      // 24 bytes in length.
                             // field is required for LPCM encoded data.
 } FormatChunk;
 
-typedef struct {
+typedef struct _DataChunk {
     BYTE chunkID[4];  // Should be "data"
     BYTE chunkSize[4];
     BYTE* data;  // use chunkSize to malloc this
 } DataChunk;
 
 // Format chunk and data chunk are siblings and children of RIFF chunk
-typedef struct {        // 12 bytes in length.
-    BYTE chunkID[4];    // Chunk ID. Should be "RIFF".
-    BYTE chunkSize[4];  // This includes the dataChunk.data
-    BYTE format[4];     // Wave ID. Should be "WAVE".
+typedef struct _RiffChunk {  // 12 bytes in length.
+    BYTE chunkID[4];         // Chunk ID. Should be "RIFF".
+    BYTE chunkSize[4];       // This includes the dataChunk.data
+    BYTE format[4];          // Wave ID. Should be "WAVE".
     FormatChunk fmtChunk;
     DataChunk dataChunk;
 } RiffChunk;
