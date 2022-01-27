@@ -104,7 +104,7 @@ int main() {
 
     // Convert dataChunk.chunkSize into an integral format by summing the 4
     // bytes
-    pb uint32_t data_size = sumNBytesFrom(riff_chunk.dataChunk.chunkSize, 4);
+    uint32_t data_size = sumNBytesFrom(riff_chunk.dataChunk.chunkSize, 4);
 
     // Allocate data_size bytes of data for dataChunk.data
     riff_chunk.dataChunk.data = (BYTE*)malloc(data_size);
@@ -197,7 +197,7 @@ II. Print a well-formatted byte -
 
 printf("%02x", byte);
 ---
-IV. Print raw bytes of data with format - 0xBE: 0xEF, where 0xBE is byte
+III. Print raw bytes of data with format - 0xBE: 0xEF, where 0xBE is byte
     position starting from pos'th data byte and 0xEF is the byte at pos -
 
 size_t pos = 0;
@@ -207,4 +207,16 @@ for (; pos < end_pos; pos) {
   printf("%02x", *(riff_chunk.dataChunk.data + pos));
   printf("\n");
 }
+---
+IV. Print the blockbuf in the loop used to read PCM data. Useful for inspecting
+    which bytes we are actually reading. This is only for 2 sample 2 byte (i.e.,
+    2 channel, 16-bit PCM data) Blocks but the 0/1 values can be swapped out for
+any other block size.
+
+printf("%02x:\t", (blockAlign * block_index));
+printf("%02x", blockbuf.sample[0].byte[0]);
+printf("%02x", blockbuf.sample[0].byte[1]);
+printf("%02x", blockbuf.sample[1].byte[0]);
+printf("%02x\n", blockbuf.sample[1].byte[1]);
+---
 */
