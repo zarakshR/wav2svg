@@ -1,44 +1,8 @@
+#include "defs.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define BYTE uint8_t
-#define RIFF_CHUNK_HEADER_SIZE 12
-
-// chunkSize never includes the 8 bytes from chunkID and itself
-// Everything except chunkIDs are little-endian
-// Block and  sample frame are synonymous
-// PCM data is signed 2's-complement except for resolutions of 1-8 bits, which
-// are represented as offset binary.
-
-typedef struct _FormatChunk { // 24 bytes in length.
-    BYTE chunkID[4];          // Should be "fmt ". Note the trailing space.
-    BYTE chunkSize[4];
-    BYTE formatCode[2];    // Should be 0x10 0x00 for PCM data
-    BYTE channels[2];      // No. of channels -- Also samples per block
-    BYTE sampleRate[4];    // Samples per second.
-    BYTE avgByteRate[4];   // Bytes per second
-    BYTE blockAlign[2];    // Bytes per block
-    BYTE bitsPerSample[2]; // Bits per sample = 8 * Bytes per sample. This
-                           // field is required for LPCM encoded data.
-} FormatChunk;
-
-typedef struct _DataChunk {
-    BYTE chunkID[4]; // Should be "data"
-    BYTE chunkSize[4];
-    BYTE* data; // use chunkSize to malloc this
-} DataChunk;
-
-// Format chunk and data chunk are siblings and children of RIFF chunk
-typedef struct _RiffChunk { // 12 bytes in length.
-    BYTE chunkID[4];        // Chunk ID. Should be "RIFF".
-    BYTE chunkSize[4];      // This includes the dataChunk.data
-    BYTE format[4];         // Wave ID. Should be "WAVE".
-    FormatChunk fmtChunk;
-    DataChunk dataChunk;
-} RiffChunk;
-
 // Returns sum of first N bytes at seriesofBytes
 uint64_t sumNBytesFrom(const BYTE* seriesOfBytes, uint32_t N)
 {
