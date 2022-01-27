@@ -3,15 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-// Returns sum of first N bytes at seriesofBytes
-uint64_t sumNBytesFrom(const BYTE* seriesOfBytes, uint32_t N)
-{
-    uint64_t sum = 0;
-    for (int64_t _i = (N - 1); _i >= 0; _i--) {
-        sum = sum << 8 | *(seriesOfBytes + _i);
-    }
-    return sum;
-}
 
 int main()
 {
