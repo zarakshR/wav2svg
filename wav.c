@@ -9,59 +9,10 @@ int main()
     size_t _i; // Index variable for loops.
 
     FILE* input_file = fopen("sample.wav", "rb");
-    if (input_file == NULL) { return 4; }
+    if (input_file == NULL) { return 1; }
 
-    RiffChunk riff_chunk;
-
-    // Read RIFF chunk header
-    fread(&riff_chunk, RIFF_CHUNK_HEADER_SIZE, 1, input_file);
-    // Read format chunk
-    fread(&riff_chunk.fmtChunk, sizeof(riff_chunk.fmtChunk), 1, input_file);
-
-    // This is the format code for linear PCM encoding
-    BYTE fmt_pcm_sig[2] = { 0x10, 0x00 };
-
-    // Make sure that file is a WAVE RIFF file with linear PCM encoding.
-    BYTE signal = 0;
-
-    // Check if RIFF
-    signal += (memcmp(riff_chunk.chunkID, "RIFF", sizeof(BYTE) * 4));
-    // Check if WAVE
-    signal += (memcmp(riff_chunk.format, "WAVE", sizeof(BYTE) * 4));
-    // Check if using linear PCM encoding
-    signal += (memcmp(riff_chunk.fmtChunk.formatCode, fmt_pcm_sig,
-                      sizeof(fmt_pcm_sig)));
-
-    if (signal != 0) { return 1; }
-
-    // Read file until "data" bytes are found
-    // We have to read manually in groups of 4 bytes starting from every
-    // byte because the chunkID bytes may not be 4-aligned due to undefined
-    // chunks not being a multiple of 4 in length.
-    BYTE buf[4];
-    for (;;) {
-        fread(&buf, 4, 1, input_file);
-        if ((memcmp(&buf, "data", 4)) == 0) { break; } // "data" found
-        fseek(input_file, -3, SEEK_CUR);               // Go back 3 bytes
-    }
-    // Write "data" into chunkID
-    strcpy(riff_chunk.dataChunk.chunkID, buf);
-
-    // Read dataChunk.chunkSize. This is the total no. of PCM data bytes.
-    fread(&riff_chunk.dataChunk.chunkSize, 4, 1, input_file);
-
-    // Convert dataChunk.chunkSize into an integral format by summing the 4
-    // bytes
-    uint32_t data_size = sumNBytesFrom(riff_chunk.dataChunk.chunkSize, 4);
-
-    // Allocate data_size bytes of data for dataChunk.data
-    riff_chunk.dataChunk.data = (BYTE*)malloc(data_size);
-    if (riff_chunk.dataChunk.data == NULL) { return 2; }
-
-    // Read data_size bytes of data into dataChunk.data
-    fread(riff_chunk.dataChunk.data, data_size, 1, input_file);
-    if (feof(input_file) || ferror(input_file)) { return 3; }
-
+    MasterChunk* master_chunk = parseFile(input_file);
+    if (master_chunk == NULL) { return 2; }
     // Close file since nothing left to be read from it.
     fclose(input_file);
 
