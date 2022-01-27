@@ -4,7 +4,6 @@
 #include <string.h>
 
 #define BYTE uint8_t
-#define BYTE_SIZE sizeof(BYTE)
 #define RIFF_CHUNK_HEADER_SIZE 12
 
 // chunkSize never includes the 8 bytes from chunkID and itself
@@ -50,8 +49,6 @@ uint64_t sumNBytesFrom(const BYTE* seriesOfBytes, uint32_t N) {
 }
 
 int main() {
-    size_t _N;  // Variable used in loops to sum up strings of bytes. See
-                // Appendix
     int8_t _i;  // Index variable for loop. Should not be unsigned
 
     FILE* input_file = fopen("sample.wav", "rb");
