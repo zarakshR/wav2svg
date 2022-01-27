@@ -2,8 +2,11 @@
 
 go() {
     gcc -g -o wav wav.c
-    ./wav
-    printf "\n$?"
+    if [ $? -eq 0 ]
+    then
+        ./wav
+        printf "\n$?"
+    fi
     echo ""
 }
 
