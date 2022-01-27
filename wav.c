@@ -128,8 +128,8 @@ int main() {
     // A struct Sample represents the instantaneous sound data for one
     // channel
     typedef struct {
-        BYTE* bytes[bytes_per_sample];  // LSB-MSB repr. of
-                                        // instantaenous amplitude
+        BYTE byte[bytes_per_sample];  // LSB-MSB repr. of
+                                      // instantaenous amplitude
     } Sample;
 
     // Calculate no. of samples per block which is equal to the no. of
@@ -151,12 +151,19 @@ int main() {
     uint16_t blockAlign = sumNBytesFrom(riff_chunk.fmtChunk.blockAlign, 2);
 
     BYTE* data_ptr = riff_chunk.dataChunk.data;
-    BYTE block_buf[blockAlign];
+    Block blockbuf;
 
     // Read block_count no. of blocks
-    for (size_t index = 0; index < block_count; index++) {
-        for (_i = 0; _i < blockAlign; _i++) {
-            block_buf[_i] = *(data_ptr + (blockAlign * index) + _i);
+    // Loop over each block
+    for (size_t block_index = 0; block_index < block_count; block_index++) {
+        // Loop over each sample in the block
+        for (size_t _i = 0; (_i / samples_per_block) < samples_per_block;
+             _i += samples_per_block) {
+            // Loop over each byte in the sample
+            for (size_t _k = 0; _k < bytes_per_sample; _k++) {
+                blockbuf.sample[_i / samples_per_block].byte[_k] =
+                    *(data_ptr + (blockAlign * block_index) + _i + _k);
+            }
         }
     }
 
