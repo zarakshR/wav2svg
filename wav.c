@@ -19,8 +19,24 @@ int main()
     // Create block and sample structures to represent raw PCM data
     // Calculate bits and bytes per sample
     uint16_t bits_per_sample
-        = sumNBytesFrom(riff_chunk.fmtChunk.bitsPerSample, 2);
+        = sumNBytesFrom(master_chunk->fmtChunk.bitsPerSample, 2);
     uint16_t bytes_per_sample = (bits_per_sample / 8);
+
+    // Calculate no. of samples per block = equal to no. of channels
+    uint16_t samples_per_block
+        = sumNBytesFrom(master_chunk->fmtChunk.channels, 2);
+
+    // Calculate integral value of dataChunk.chunkSize
+    uint32_t data_size = sumNBytesFrom(master_chunk->dataChunk.chunkSize, 4);
+
+    // We can figure out the total no. of blocks since we have the total
+    // size of the data
+    size_t block_count;
+    block_count = data_size / (samples_per_block * bytes_per_sample);
+
+    // Calculate bytes per block. blockAlign is equal to bytes per block
+    uint16_t bytes_per_block
+        = sumNBytesFrom(master_chunk->fmtChunk.blockAlign, 2);
 
     // A struct Sample represents the instantaneous sound data for one
     // channel
@@ -28,10 +44,6 @@ int main()
         // LSB-MSB repr. of instantaenous amplitude
         BYTE byte[bytes_per_sample];
     } Sample;
-
-    // Calculate no. of samples per block which is equal to the no. of
-    // channels
-    uint16_t samples_per_block = sumNBytesFrom(riff_chunk.fmtChunk.channels, 2);
 
     // A struct block represents the instantaneous sound data for all
     // channels
