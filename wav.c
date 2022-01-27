@@ -149,24 +149,37 @@ int main() {
 
     // Calculate blockAlign
     uint16_t blockAlign = sumNBytesFrom(riff_chunk.fmtChunk.blockAlign, 2);
+    // blockAlign is the same thing as bytes per block
+    uint16_t bytes_per_block = blockAlign;
 
+    // These will be needed to read the data
     BYTE* data_ptr = riff_chunk.dataChunk.data;
+    BYTE byte;
     Block blockbuf;
+    uint32_t block_index;
+    size_t block_offset;
+    uint16_t sample_index;
+    size_t sample_offset;
+    uint16_t byte_index;
+    size_t byte_offset;
 
-    // Read block_count no. of blocks
     // Loop over each block
-    for (size_t block_index = 0; block_index < block_count; block_index++) {
+    for (block_index = 0; block_index < block_count; block_index++) {
+        block_offset = block_index * bytes_per_block;
         // Loop over each sample in the block
-        for (size_t _i = 0; (_i / samples_per_block) < samples_per_block;
-             _i += samples_per_block) {
+        for (sample_index = 0; sample_index < samples_per_block;
+             sample_index++) {
+            sample_offset = sample_index * bytes_per_sample;
             // Loop over each byte in the sample
-            for (size_t _k = 0; _k < bytes_per_sample; _k++) {
-                blockbuf.sample[_i / samples_per_block].byte[_k] =
-                    *(data_ptr + (blockAlign * block_index) + _i + _k);
+            for (byte_index = 0; byte_index < bytes_per_sample; byte_index++) {
+                byte_offset = byte_index;  // Trivial, included for clarity
+
+                byte = *(data_ptr + block_offset + sample_offset + byte_offset);
+                blockbuf.sample[sample_index].byte[byte_index] = byte;
             }
         }
+        // At this point we have a structured representation of a block of data.
     }
-
     free(riff_chunk.dataChunk.data);
     return 0;
 }
