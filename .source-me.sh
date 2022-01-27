@@ -1,7 +1,6 @@
 # Use this until a proper Makefile is written
-
 go() {
-    gcc -g -o wav wav.c
+    gcc -g parser.c helpers.c wav.c -o wav
     if [ $? -eq 0 ]
     then
         ./wav
@@ -11,13 +10,13 @@ go() {
 }
 
 db() {
-    gdb wav
-}
-
-# dumps all bytes in "sample.wav"
-dbytes() {
-    gcc printbytes.c -o printbytes
-    ./printbytes
+    gcc -g parser.c helpers.c wav.c -o wav
+    if [ $? -eq 0 ]
+    then
+        gdb wav
+        printf "\n$?"
+    fi
+    echo ""
 }
 
 # dumps bytes in data section of the dataChunk
