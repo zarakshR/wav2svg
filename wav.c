@@ -71,35 +71,27 @@ int main()
 Appendix
 
 I. Error Codes -
-1 - not a riff file, not a wav file, or wav file not using pcm encoding
-2 - malloc failed
-3 - feof or ferror
-4 - file couldn't be opened
+1 - Could not open file.
+2 - Could not parse file.
 ---
 II. Print a well-formatted byte -
 
 printf("%02x", byte);
 ---
-III. Print raw bytes of data with format - 0xBE: 0xEF, where 0xBE is byte
-    position starting from pos'th data byte and 0xEF is the byte at pos -
+III. Loop through and print each byte. This can be copy pasted when/if we need
+to perform specific operations on the data.
 
-size_t pos = 0;
-size_t end_pos = 100;
-for (; pos < end_pos; pos) {
-  printf("%02x: ", pos);
-  printf("%02x", *(riff_chunk.dataChunk.data + pos));
-  printf("\n");
+for (size_t block_index = 0; block_index < block_count; block_index++) {
+    printf("\n%02x:\t", (bytes_per_block * block_index));
+    for (size_t sample_index = 0; sample_index < samples_per_block;
+            sample_index++) {
+        for (size_t byte_index = 0; byte_index < bytes_per_sample;
+                byte_index++) {
+            printf(
+                "%02x",
+                blocks[block_index].sample[sample_index].byte[byte_index]);
+        }
+    }
 }
----
-IV. Print the blockbuf in the loop used to read PCM data. Useful for inspecting
-    which bytes we are actually reading. This is only for 2 sample 2 byte (i.e.,
-    2 channel, 16-bit PCM data) Blocks but the 0/1 values can be swapped out for
-    any other block size.
-
-printf("%02x:\t", (blockAlign * block_index));
-printf("%02x", blockbuf.sample[0].byte[0]);
-printf("%02x", blockbuf.sample[0].byte[1]);
-printf("%02x", blockbuf.sample[1].byte[0]);
-printf("%02x\n", blockbuf.sample[1].byte[1]);
 ---
 */
