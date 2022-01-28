@@ -16,52 +16,51 @@ int main()
     // Close file since nothing left to be read from it.
     fclose(input_file);
 
-    // Create block and sample structures to represent raw PCM data
-    // Calculate bits and bytes per sample
+    // Create structures to pack raw PCM data into.
+
+    // Calculate bits and bytes per sample.
     uint16_t bits_per_sample
         = sumNBytesFrom(master_chunk->fmtChunk.bitsPerSample, 2);
     uint16_t bytes_per_sample = (bits_per_sample / 8);
 
-    // Calculate no. of samples per block = equal to no. of channels
+    // Calculate no. of samples per block = equal to no. of channels.
     uint16_t samples_per_block
         = sumNBytesFrom(master_chunk->fmtChunk.channels, 2);
 
-    // Calculate integral value of dataChunk.chunkSize
+    // Calculate integral value of dataChunk.chunkSize.
     uint32_t data_size = sumNBytesFrom(master_chunk->dataChunk.chunkSize, 4);
 
     // We can figure out the total no. of blocks since we have the total
-    // size of the data
+    //      size of the data.
     size_t block_count;
     block_count = data_size / (samples_per_block * bytes_per_sample);
 
-    // Calculate bytes per block. blockAlign is equal to bytes per block
+    // Calculate bytes per block. blockAlign is equal to bytes per block.
     uint16_t bytes_per_block
         = sumNBytesFrom(master_chunk->fmtChunk.blockAlign, 2);
 
-    // A struct Sample represents the instantaneous sound data for one
-    // channel
+    // A struct Sample represents the instantaneous sound data for one channel.
     typedef struct {
-        // LSB-MSB repr. of instantaenous amplitude
+        // LSB-...-MSB repr. of instantaenous amplitude.
         BYTE byte[bytes_per_sample];
     } Sample;
 
-    // A struct block represents the instantaneous sound data for all
-    // channels
+    // A struct block represents the instantaneous sound data for all channels.
     typedef struct {
         // 1 sample for each channel.
         Sample sample[samples_per_block];
     } Block;
 
-    // Treat "blocks" as an alias for master_chunk.dataChunk.data
+    // Treat "blocks" as an alias for master_chunk.dataChunk.data.
     Block* blocks = master_chunk->dataChunk.data;
 
     // By pointing a Block* to data, we can treat master_chunk.dataChunk.data as
-    // an array of blocks and use syntax like below -
+    //      an array of Block objects and use syntax like below -
     //
     // blocks[x].sample[y].byte[z]; <-- z'th byte of y'th sample of x'th block
     //
     // Now all data can be read by simply looping block_count times over blocks.
-    // See appendix for example
+    // See appendix for example.
 
     free(master_chunk->dataChunk.data);
     return 0;

@@ -1,9 +1,1 @@
-{
-    BasedOnStyle: WebKit,
-    IndentWidth: 4,
-    ColumnLimit: 80,
-    AlignConsecutiveAssignments: Consecutive,
-    AlignAfterOpenBracket: Align,
-    AlignTrailingComments: true,
-    AllowShortIfStatementsOnASingleLine: WithoutElse,
-}
+../.clang-format
