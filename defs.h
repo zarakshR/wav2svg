@@ -10,27 +10,27 @@
 //      are represented as offset binary.
 
 typedef struct _FormatChunk {
-    BYTE chunkID[4];       // Should be "fmt ". Note the trailing space.
-    BYTE chunkSize[4];     // Chunk size.
-    BYTE formatCode[2];    // Should be 0x10 0x00 for PCM data.
-    BYTE channels[2];      // No. of channels = samples per block.
-    BYTE sampleRate[4];    // Samples per second.
-    BYTE avgByteRate[4];   // Bytes per second.
-    BYTE blockAlign[2];    // Bytes per block.
-    BYTE bitsPerSample[2]; // Bits per sample = 8 * Bytes per sample.
+    BYTE chunkID[4];        // Should be "fmt ". Note the trailing space.
+    uint32_t chunkSize;     // Chunk size.
+    BYTE formatCode[2];     // Should be 0x10 0x00 for PCM data.
+    uint16_t channels;      // No. of channels = samples per block.
+    uint32_t sampleRate;    // Samples per second.
+    uint32_t avgByteRate;   // Bytes per second.
+    uint16_t blockAlign;    // Bytes per block.
+    uint16_t bitsPerSample; // Bits per sample = 8 * Bytes per sample.
 } FormatChunk;
 
 typedef struct _DataChunk {
-    BYTE chunkID[4];   // Should be "data".
-    BYTE chunkSize[4]; // Chunk size
-    void* data;        // Pointer to raw data
+    BYTE chunkID[4];    // Should be "data".
+    uint32_t chunkSize; // Chunk size
+    void* data;         // Pointer to raw data
 } DataChunk;
 
 // Format chunk and data chunk are siblings and children of master chunk
 typedef struct _MasterChunk {
-    BYTE chunkID[4];   // Should be "RIFF".
-    BYTE chunkSize[4]; // This includes the dataChunk.data
-    BYTE format[4];    // Wave ID. Should be "WAVE".
+    BYTE chunkID[4];    // Should be "RIFF".
+    uint32_t chunkSize; // This includes the dataChunk.data
+    BYTE format[4];     // Wave ID. Should be "WAVE".
     FormatChunk fmtChunk;
     DataChunk dataChunk;
 } MasterChunk;

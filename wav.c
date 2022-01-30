@@ -19,16 +19,14 @@ int main()
     // Create structures to pack raw PCM data into.
 
     // Calculate bits and bytes per sample.
-    uint16_t bits_per_sample
-        = sumNBytesFrom(master_chunk->fmtChunk.bitsPerSample, 2);
+    uint16_t bits_per_sample  = master_chunk->fmtChunk.bitsPerSample;
     uint16_t bytes_per_sample = (bits_per_sample / 8);
 
     // Calculate no. of samples per block = equal to no. of channels.
-    uint16_t samples_per_block
-        = sumNBytesFrom(master_chunk->fmtChunk.channels, 2);
+    uint16_t samples_per_block = master_chunk->fmtChunk.channels;
 
     // Calculate integral value of dataChunk.chunkSize.
-    uint32_t data_size = sumNBytesFrom(master_chunk->dataChunk.chunkSize, 4);
+    uint32_t data_size = master_chunk->dataChunk.chunkSize;
 
     // We can figure out the total no. of blocks since we have the total
     //      size of the data.
@@ -36,8 +34,7 @@ int main()
     block_count = data_size / (samples_per_block * bytes_per_sample);
 
     // Calculate bytes per block. blockAlign is equal to bytes per block.
-    uint16_t bytes_per_block
-        = sumNBytesFrom(master_chunk->fmtChunk.blockAlign, 2);
+    uint16_t bytes_per_block = master_chunk->fmtChunk.blockAlign;
 
     // A struct Sample represents the instantaneous sound data for one channel.
     typedef struct {

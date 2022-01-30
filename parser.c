@@ -49,17 +49,15 @@ MasterChunk* parseFile(FILE* input_file)
     // Read dataChunk.chunkSize. This is the total no. of PCM data bytes.
     fread(&master_chunk.dataChunk.chunkSize, 4, 1, input_file);
 
-    // Convert dataChunk.chunkSize into an integral format by summing the 4
-    //      bytes.
-    uint32_t data_size = sumNBytesFrom(master_chunk.dataChunk.chunkSize, 4);
-
     // Allocate data_size bytes of data for dataChunk.data. Caller is
     //      responsible for freeing.
-    master_chunk.dataChunk.data = (BYTE*)malloc(data_size);
+    master_chunk.dataChunk.data
+        = (BYTE*)malloc(master_chunk.dataChunk.chunkSize);
     if (master_chunk.dataChunk.data == NULL) { return NULL; }
 
     // Read data_size bytes of data into dataChunk.data.
-    fread(master_chunk.dataChunk.data, data_size, 1, input_file);
+    fread(master_chunk.dataChunk.data, master_chunk.dataChunk.chunkSize, 1,
+          input_file);
     if (feof(input_file) || ferror(input_file)) { return NULL; }
 
     return &master_chunk;
