@@ -44,7 +44,7 @@ MasterChunk* parseFile(FILE* input_file)
         fseek(input_file, -3, SEEK_CUR);
     }
     // Write "data" into chunkID.
-    strcpy(master_chunk.dataChunk.chunkID, buf);
+    strncpy(master_chunk.dataChunk.chunkID, buf, 4);
 
     // Read dataChunk.chunkSize. This is the total no. of PCM data bytes.
     fread(&master_chunk.dataChunk.chunkSize, 4, 1, input_file);
