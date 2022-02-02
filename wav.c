@@ -72,19 +72,27 @@ II. Print a well-formatted byte -
 
 printf("%02x", byte);
 ---
-III. Loop through and print each byte. This can be copy pasted when/if we need
-to perform specific operations on the data.
+III. Pretty print the raw PCM data.
 
-for (size_t block_index = 0; block_index < block_count; block_index++) {
-    printf("\n%02x:\t", (bytes_per_block * block_index));
-    for (size_t sample_index = 0; sample_index < samples_per_block;
-            sample_index++) {
-        for (size_t byte_index = 0; byte_index < bytes_per_sample;
-                byte_index++) {
-            printf(
-                "%02x",
-                blocks[block_index].sample[sample_index].byte[byte_index]);
+BYTE byte_buf   = 0;
+size_t samp_buf = 0;
+for (size_t block_i = 0; block_i < block_count; block_i++) {
+    // In block_i'th block
+    printf("\nBlock %zu at ", block_i);
+    printf("addr. 0x%02x:\n", (bytes_per_block * block_i));
+    for (size_t sample_i = 0; sample_i < samples_per_block; sample_i++) {
+        // In sample_i'th sample
+        samp_buf = 0;
+        printf("\tSample %zu: ", sample_i);
+        for (size_t byte_i = 0; byte_i < bytes_per_sample; byte_i++) {
+            // In byte_i'th byte
+            byte_buf = blocks[block_i].sample[sample_i].byte[byte_i];
+            samp_buf = samp_buf | byte_buf << (8 * (byte_i));
+            // printf("%02x",
+            // blocks[block_i].sample[sample_i].byte[byte_i]);
         }
+        printf("0x%x", samp_buf);
+        printf("\n");
     }
 }
 ---
