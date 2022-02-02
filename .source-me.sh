@@ -1,6 +1,6 @@
 # Use this until a proper Makefile is written
 go() {
-    gcc -g parser.c helpers.c wav.c -o wav
+    gcc -g parser.c helpers.c wav.c -Wall -Wextra -o wav
     if [ $? -eq 0 ]
     then
         ./wav
@@ -10,7 +10,7 @@ go() {
 }
 
 db() {
-    gcc -g parser.c helpers.c wav.c -o wav
+    gcc -g parser.c helpers.c wav.c -Wall -Wextra -o wav
     if [ $? -eq 0 ]
     then
         gdb wav
