@@ -57,34 +57,52 @@ int main()
     // Now all data can be read by simply looping block_count times over blocks.
     // See appendix for example.
 
+    // Buffer for sample
     int128_t samp_buf = 0;
-    // samp_inv will store the two's complement of samp_buf
-    int128_t samp_inv = 0;
+    // amplitude will store the two's complement of samp_buf
+    int128_t amplitude = 0;
 
-    // Create a mask to select only bits_per_sample from samp_inv.
-    // Without this samp_inv also inverts all the bits before bytes we are
-    //      interested in. Giving us samp_inv values like 0xFFFFFFFF8AE9, etc
-    //      instead of 0x000000008AE9
-    int128_t bitmask = 0x0;
-    bitmask          = ~bitmask;
-    bitmask          = bitmask << (bits_per_sample);
-    bitmask          = ~bitmask;
+    // Create a mask to select only bits_per_sample from amplitude.
+    // Without this amplitude also inverts all the bits before bytes we are
+    //      interested in. Giving us amplitude values like 0xFFFFFFFF1234, etc
+    //      instead of 0x000000001234
+    int128_t pos_bitmask = 0x0;
+    pos_bitmask          = ~pos_bitmask;
+    pos_bitmask          = pos_bitmask << (bits_per_sample);
+    pos_bitmask          = ~pos_bitmask;
+
+    // This bitmask preserves signededness so 0x8AE9 is interpreted as
+    //      0xFF...FF8AE9 (since 0x8AE9 is a negative number) which will be
+    //      required to preserve signedness when the dat is stored in a int128_t
+    //      which has all bits unset.
+    int128_t neg_bitmask = ~pos_bitmask;
+
+    uint8_t MSB = 0;
 
     for (size_t block_i = 0; block_i < block_count; block_i++) {
         // In block_i'th block
         for (size_t sample_i = 0; sample_i < samples_per_block; sample_i++) {
             // In sample_i'th sample
-            samp_buf = 0;
-            samp_inv = 0;
+            samp_buf  = 0;
+            amplitude = 0;
             for (size_t byte_i = 0; byte_i < bytes_per_sample; byte_i++) {
                 // In byte_i'th byte
                 samp_buf = samp_buf
                     | blocks[block_i].sample[sample_i].byte[byte_i]
                         << (8 * (byte_i));
             }
-            samp_inv = ((~samp_buf) + 1);
-            samp_inv = samp_inv & bitmask;
-            // Amplitude is samp_inv
+            amplitude = ((~samp_buf) + 1);
+            // amplitude >> (bits_per_sample - 8) selects the MSB of amplitude,
+            //      if it is >=0x80 the amplitude is negative and must be masked
+            //      by ORing with neg_bitmask; else amplitude is positive and
+            //      must be masked by ANDing with pos_bitmask
+            MSB = (amplitude >> (bits_per_sample - 8));
+            if (MSB >= 0x80) {
+                amplitude = amplitude | neg_bitmask;
+            } else {
+                amplitude = amplitude & pos_bitmask;
+            }
+            // Amplitude is amplitude
         }
     }
 
