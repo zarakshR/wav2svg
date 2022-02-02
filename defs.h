@@ -37,3 +37,6 @@ typedef struct _MasterChunk {
 
 uint64_t sumNBytesFrom(const BYTE* seriesOfBytes, uint32_t N);
 MasterChunk* parseFile(FILE* input_file);
+
+typedef __uint128_t uint128_t;
+typedef __int128_t int128_t;
