@@ -57,6 +57,26 @@ int main()
     // Now all data can be read by simply looping block_count times over blocks.
     // See appendix for example.
 
+    // samp_buf being 16-bit will limit this loop to only 2-byte samples.
+    // we are only considering files with bits_per_sample > 8 because for 0-8
+    //      bits, wav files use usigned int representation which this loop
+    //      doesnt deal with
+    int16_t samp_buf = 0;
+    for (size_t block_i = 0; block_i < block_count; block_i++) {
+        // In block_i'th block
+        for (size_t sample_i = 0; sample_i < samples_per_block; sample_i++) {
+            // In sample_i'th sample
+            samp_buf = 0;
+            for (size_t byte_i = 0; byte_i < bytes_per_sample; byte_i++) {
+                // In byte_i'th byte
+                samp_buf = samp_buf
+                    | blocks[block_i].sample[sample_i].byte[byte_i]
+                        << (8 * (byte_i));
+            }
+            // Amplitude is (~samp_buf) + 1)
+        }
+    }
+
     free(master_chunk->dataChunk.data);
     return 0;
 }
