@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Takes a pointer to a .wav file and returns a structured representation of the
-//      data in it.
+// Takes a pointer to a .wav file and returns a structured representation of it
 MasterChunk* parseFile(FILE* input_file)
 {
     // This will represent the entire file, but is mostly useful for accessing

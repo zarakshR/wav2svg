@@ -6,8 +6,6 @@
 
 int main()
 {
-    size_t _i; // Index variable for loops.
-
     FILE* input_file = fopen("sample.wav", "rb");
     if (input_file == NULL) { return 1; }
 
