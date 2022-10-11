@@ -99,8 +99,11 @@ int main()
             } else {
                 amplitude = amplitude & pos_bitmask;
             }
-            // Amplitude is amplitude
+            // amplitude is Amplitude s
+            // Add `amplitude` to whatever heap object here
+            printf("%lld\t", amplitude);
         }
+        printf("\n");
     }
 
     free(master_chunk->dataChunk.data);
