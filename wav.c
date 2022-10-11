@@ -67,14 +67,11 @@ int main()
     //      interested in. Giving us amplitude values like 0xFFFFFFFF1234, etc
     //      instead of 0x000000001234
     int128_t pos_bitmask = 0x0;
-    pos_bitmask          = ~pos_bitmask;
-    pos_bitmask          = pos_bitmask << (bits_per_sample);
-    pos_bitmask          = ~pos_bitmask;
+    pos_bitmask          = ~(~pos_bitmask << (bits_per_sample));
 
-    // This bitmask preserves signededness so 0x8AE9 is interpreted as
+    // This bitmask preserves signedness so 0x8AE9 is interpreted as
     //      0xFF...FF8AE9 (since 0x8AE9 is a negative number) which will be
-    //      required to preserve signedness when the dat is stored in a int128_t
-    //      which has all bits unset.
+    //      required to preserve signedness when the data is stored in a int128
     int128_t neg_bitmask = ~pos_bitmask;
 
     uint8_t MSB = 0;
