@@ -32,11 +32,11 @@ int main()
     block_count = data_size / (samples_per_block * bytes_per_sample);
 
     // Calculate bytes per block. blockAlign is equal to bytes per block.
-    uint16_t bytes_per_block = master_chunk->fmtChunk.blockAlign;
+    // uint16_t bytes_per_block = master_chunk->fmtChunk.blockAlign;
 
     // A struct Sample represents the instantaneous sound data for one channel.
     typedef struct {
-        // LSB-...-MSB repr. of instantaenous amplitude.
+        // LSB-...-MSB repr. of instantaneous amplitude.
         BYTE byte[bytes_per_sample];
     } Sample;
 
