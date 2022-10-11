@@ -17,7 +17,7 @@ MasterChunk* parseFile(FILE* input_file)
     fread(&master_chunk.fmtChunk, sizeof(master_chunk.fmtChunk), 1, input_file);
 
     // This is the format code for linear PCM encoding.
-    BYTE fmt_pcm_sig[2] = { 0x10, 0x00 };
+    BYTE fmt_pcm_sig[2] = { 0x01, 0x00 };
 
     // Make sure that file is a WAVE RIFF file with linear PCM encoding.
     BYTE signal = 0;
