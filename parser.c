@@ -23,9 +23,9 @@ MasterChunk* parseFile(FILE* input_file)
     BYTE signal = 0;
 
     // Check if RIFF.
-    signal += (memcmp(master_chunk.chunkID, "RIFF", sizeof(BYTE) * 4));
+    signal += (memcmp(master_chunk.chunkID, "RIFF", 4));
     // Check if WAVE.
-    signal += (memcmp(master_chunk.format, "WAVE", sizeof(BYTE) * 4));
+    signal += (memcmp(master_chunk.format, "WAVE", 4));
     // Check if using linear PCM encoding.
     signal += (memcmp(master_chunk.fmtChunk.formatCode, fmt_pcm_sig,
                       sizeof(fmt_pcm_sig)));
