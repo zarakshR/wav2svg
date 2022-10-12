@@ -7,7 +7,7 @@ from more_itertools import flatten
 
 samples = []
 
-output = run("./wav", capture_output=True).stdout.decode().split("\n")
+output = run("./wav2svg", capture_output=True).stdout.decode().split("\n")
 
 samples = []
 
@@ -24,22 +24,22 @@ yres = 1000
 scrsize_x = 1500
 scrsize_y = 1000
 
-print(xrange)
-print(yrange)
+print("XRANGE: ", xrange)
+print("YRANGE: ", yrange)
 
-print(xres)
-print(yres)
+print("XRES: ", xres)
+print("YRES: ", yres)
 
-print(scrsize_x)
-print(scrsize_y)
+print("SCRSIZE_X: ", scrsize_x)
+print("SCRSIZE_Y: ", scrsize_y)
 
 yrange = yrange // yres
 xrange = xrange // xres
 
-print(xrange)
-print(yrange)
+print("XRANGE: ", xrange)
+print("YRANGE: ", yrange)
 
-with cairo.SVGSurface("test.svg", scrsize_x, scrsize_y) as surface:
+with cairo.SVGSurface("ch1.svg", scrsize_x, scrsize_y) as surface:
     context = cairo.Context(surface)
     sx = int(scrsize_x / xrange)
     sy = int(scrsize_y / yrange)
@@ -48,7 +48,7 @@ with cairo.SVGSurface("test.svg", scrsize_x, scrsize_y) as surface:
     context.set_line_width(0.1)
     context.move_to(0, 0)
     for x in range(xrange):
-        sample = samples[x * xres][0]
+        sample = samples[x * xres][0] # Only prints 0th column of data (left channel)!
         sample = int(sample / (yres * 2))
         context.line_to(x, ((sy / 2) - sample))
     context.stroke()
