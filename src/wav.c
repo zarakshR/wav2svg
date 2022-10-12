@@ -1,5 +1,6 @@
 #include "util.h"
 #include "parser.h"
+#include "draw.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -101,6 +102,7 @@ int main()
                 amplitude = amplitude & pos_bitmask;
             }
             // Add `amplitude` to whatever heap object here
+            draw(amplitude);
             printf("%lld\t", amplitude);
         }
         printf("\n");
