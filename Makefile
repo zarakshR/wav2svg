@@ -1,5 +1,5 @@
 P=wav2svg
-OBJECTS=wav.c parser.c helpers.c defs.h
+OBJECTS=wav.c parser.c defs.h
 CFLAGS=-Wall
 CC=gcc
 BUILD_DIR=build
