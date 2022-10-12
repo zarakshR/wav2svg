@@ -1,11 +1,4 @@
 .vscode/**
 docs/**
 *.wav
-*.txt
-printbytes.c
-printbytes
-wav
-a.out
-wav2svg
-wav2svg_debug
 .idea/
