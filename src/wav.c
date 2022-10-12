@@ -101,7 +101,7 @@ int main()
                 amplitude = amplitude & pos_bitmask;
             }
             // Add `amplitude` to whatever heap object here
-            printf("%lld ", amplitude);
+            printf("%lld\t", amplitude);
         }
         printf("\n");
     }
