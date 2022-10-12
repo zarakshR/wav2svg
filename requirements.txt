@@ -1,0 +1,2 @@
+more-itertools==8.14.0
+pycairo==1.21.0
