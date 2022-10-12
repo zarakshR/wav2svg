@@ -1,7 +1,14 @@
+//
+// Created by zaraksh on 10/12/22.
+//
+
+#include "util.h"
 #include <stdint.h>
 #include <stdio.h>
 
-#define BYTE uint8_t
+#ifndef WAV2SVG_PARSER_H
+#define WAV2SVG_PARSER_H
+
 #define MASTER_CHUNK_HEADER_SIZE 12
 
 // chunkSize never includes the 8 bytes from chunkID and itself
@@ -35,8 +42,6 @@ typedef struct _MasterChunk {
     DataChunk dataChunk;
 } MasterChunk;
 
-uint64_t sumNBytesFrom(const BYTE* seriesOfBytes, uint32_t N);
 MasterChunk* parseFile(FILE* input_file);
 
-typedef __uint128_t uint128_t;
-typedef __int128_t int128_t;
+#endif //WAV2SVG_PARSER_H
