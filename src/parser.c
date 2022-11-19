@@ -21,17 +21,17 @@ MasterChunk* parseFile(FILE* input_file)
     BYTE fmt_pcm_sig[2] = { 0x01, 0x00 };
 
     // Make sure that file is a WAVE RIFF file with linear PCM encoding.
-    BYTE signal = 0;
+    BYTE flag = 0;
 
     // Check if RIFF.
-    signal += (memcmp(master_chunk.chunkID, "RIFF", 4));
+    flag += (memcmp(master_chunk.chunkID, "RIFF", 4));
     // Check if WAVE.
-    signal += (memcmp(master_chunk.format, "WAVE", 4));
+    flag += (memcmp(master_chunk.format, "WAVE", 4));
     // Check if using linear PCM encoding.
-    signal += (memcmp(master_chunk.fmtChunk.formatCode, fmt_pcm_sig,
+    flag += (memcmp(master_chunk.fmtChunk.formatCode, fmt_pcm_sig,
                       sizeof(fmt_pcm_sig)));
 
-    if (signal != 0) { return NULL; }
+    if (flag != 0) { return NULL; }
 
     // Read file until "data" bytes are found.
     // We have to read manually in groups of 4 bytes starting from every
