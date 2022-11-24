@@ -30,7 +30,9 @@ void draw(MasterChunk* master_chunk) {
     // blocks[x].sample[y].byte[z]; <-- z'th byte of y'th sample of x'th block
     //
     // Now all data can be read by simply looping block_count times over blocks.
-    // See appendix for example.    // A struct Sample represents the instantaneous sound data for one channel.
+    // See appendix for example.
+
+    // A struct Sample represents the instantaneous sound data for one channel.
     typedef struct {
         // LSB-...-MSB repr. of instantaneous amplitude.
         BYTE byte[meta.bytes_per_sample];
@@ -90,7 +92,6 @@ void draw(MasterChunk* master_chunk) {
             }
             // Add `amplitude` to whatever heap object here
         }
-        printf("\n");
     }
 }
 

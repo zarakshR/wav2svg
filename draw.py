@@ -7,7 +7,7 @@ from more_itertools import flatten
 
 samples = []
 
-output = run("./wav2svg", capture_output=True).stdout.decode().split("\n")
+output = run("./build/wav2svg", capture_output=True).stdout.decode().split("\n")
 
 samples = []
 
