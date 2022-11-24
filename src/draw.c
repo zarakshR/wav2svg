@@ -70,6 +70,10 @@ void draw(MasterChunk* master_chunk) {
     int sample_resolution = 15;
 
     double width = meta.block_count * x_resolution;
+
+    // ((1<<meta.bits_per_sample)-1) is the maximum possible amplitude for a
+    // channel. Multiplied by twice the no. of channels (samples per block)
+    // since each channel can hold +ve and -ve values upto 2^bits_per_sample.
     double height = ((meta.samples_per_block * 2) * (((1<<meta.bits_per_sample) - 1) * y_resolution));
 
     // Initialize cairo surface to draw on
@@ -82,24 +86,34 @@ void draw(MasterChunk* master_chunk) {
         // Create each stroke object
         strokes[i] = cairo_create(surface);
         // Make sure lines are at correct starting point
-        // TODO: calculate height at which each stroke needs to start
         cairo_move_to(strokes[i], 0.0, ((i+1) * (height/(meta.samples_per_block+1))));
+        // Height is divided into "bands" equal in number to the number of
+        // channels. The (i+1) is so that each channel is assigned a
+        // corresponding "band"
+        // 2 channels => height/3 gives us 0.33, 0.66 as starting points
+        // 3 channels => height/4 gives us 0.25, 0.50, 0.75 as starting points
+        // 4 channels => height/5 gives us 0.20, 0.40, 0.60, 0.80 as starting points
+        // etc.
     }
 
     // Iterate through each block and draw it to cairo surface
     for (size_t block_i = 0; block_i < meta.block_count; block_i += sample_resolution) {
         // In block_i'th block
+
         for (size_t sample_i = 0; sample_i < meta.samples_per_block; sample_i++) {
             // In sample_i'th sample
+
             samp_buf  = 0;
             amplitude = 0;
+
             for (size_t byte_i = 0; byte_i < meta.bytes_per_sample; byte_i++) {
                 // In byte_i'th byte
                 samp_buf = samp_buf
                     | blocks[block_i].sample[sample_i].byte[byte_i]
                         << (8 * (byte_i));
             }
-            amplitude = ((~samp_buf) + 1);
+            amplitude = ((~samp_buf) + 1); // ampl. is stored as 2's complement
+
             // amplitude >> (bits_per_sample - 8) selects the MSB of amplitude,
             //      if it is >=0x80 the amplitude is negative and must be masked
             //      by ORing with neg_bitmask; else amplitude is positive and
@@ -116,8 +130,12 @@ void draw(MasterChunk* master_chunk) {
                                 strokes[sample_i],
                                 (block_i * x_resolution),
                                 (
+                                    // same logic used to divide height up into
+                                    // "bands" is used to figure out zero on the
+                                    // y-axis
                                     ((sample_i + 1) * (height/(meta.samples_per_block+1)))
                                     +
+                                    // add amplitude as offset
                                     (amplitude * y_resolution))
                             );
         }
