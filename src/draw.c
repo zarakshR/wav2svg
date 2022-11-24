@@ -65,6 +65,7 @@ void draw(MasterChunk* master_chunk) {
     uint8_t MSB = 0;
 
     // TODO: un-hardcode these
+    // TODO: figure out a heuristic for x and y resolutions
     double x_resolution = 0.01;
     double y_resolution = 0.005;
     int sample_resolution = 15;
@@ -108,11 +109,13 @@ void draw(MasterChunk* master_chunk) {
 
             for (size_t byte_i = 0; byte_i < meta.bytes_per_sample; byte_i++) {
                 // In byte_i'th byte
+                // TODO: Performance bottleneck
+                //      Maybe try loading samp_buf all in one go?
                 samp_buf = samp_buf
                     | blocks[block_i].sample[sample_i].byte[byte_i]
                         << (8 * (byte_i));
             }
-            amplitude = ((~samp_buf) + 1); // ampl. is stored as 2's complement
+            amplitude = ((~samp_buf) + 1); // TODO: I don't remember what this is for
 
             // 8-bit wav data does not use two's complement. skip below section
             // if file is 8-bit wav.

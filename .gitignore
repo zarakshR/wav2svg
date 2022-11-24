@@ -1,6 +1,8 @@
 .vscode/**
 docs/**
 *.wav
+*.h.gch
 *.svg
+TODO.txt
 .idea/
 .venv
