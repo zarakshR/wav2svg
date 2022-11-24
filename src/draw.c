@@ -2,8 +2,6 @@
 #include "draw.h"
 
 void draw(MasterChunk* master_chunk) {
-    // TODO: Initialize cairo surface
-
     // Populate metadata about file
     Meta meta;
 
@@ -66,6 +64,18 @@ void draw(MasterChunk* master_chunk) {
 
     uint8_t MSB = 0;
 
+    // TODO: un-hardcode these
+    double width = 1800;
+    double height = 900;
+
+    // Initialize cairo backend and surface to draw on
+    cairo_surface_t * surface =
+        cairo_svg_surface_create("out.svg", width, height);
+    cairo_t * cr = cairo_create(surface);
+
+    // Make sure line is at correct starting point
+    cairo_move_to(cr, 0.0, (height/2));
+
     // Iterate through each block and draw it to cairo surface
     for (size_t block_i = 0; block_i < meta.block_count; block_i++) {
         // In block_i'th block
@@ -93,5 +103,11 @@ void draw(MasterChunk* master_chunk) {
             // Add `amplitude` to whatever heap object here
         }
     }
-}
+    // Apply stroke
+    cairo_stroke(cr);
+    cairo_close_path(cr);
 
+    // This is required or nothing gets written to file
+    cairo_surface_destroy(surface);
+    cairo_destroy(cr);
+}
