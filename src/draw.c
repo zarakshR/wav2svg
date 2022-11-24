@@ -114,6 +114,10 @@ void draw(MasterChunk* master_chunk) {
             }
             amplitude = ((~samp_buf) + 1); // ampl. is stored as 2's complement
 
+            // 8-bit wav data does not use two's complement. skip below section
+            // if file is 8-bit wav.
+            if (meta.bits_per_sample <= 8) { goto skip_twos_complement; }
+
             // amplitude >> (bits_per_sample - 8) selects the MSB of amplitude,
             //      if it is >=0x80 the amplitude is negative and must be masked
             //      by ORing with neg_bitmask; else amplitude is positive and
@@ -124,6 +128,7 @@ void draw(MasterChunk* master_chunk) {
             } else {
                 amplitude = amplitude & pos_bitmask;
             }
+            skip_twos_complement:
 
             // Ayy yo what the fuck is this shit dawg! Refactor!
             cairo_line_to(
