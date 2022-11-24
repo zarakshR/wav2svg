@@ -67,6 +67,9 @@ void draw(MasterChunk* master_chunk) {
     // TODO: un-hardcode these
     double width = 1800;
     double height = 900;
+    int sample_resolution = 25;
+    double x_resolution = 0.01;
+    double y_resolution = 0.01;
 
     // Initialize cairo backend and surface to draw on
     cairo_surface_t * surface =
@@ -76,8 +79,10 @@ void draw(MasterChunk* master_chunk) {
     // Make sure line is at correct starting point
     cairo_move_to(cr, 0.0, (height/2));
 
+    // TODO: make sure we create a separate stroke for each channel (each sample)
+
     // Iterate through each block and draw it to cairo surface
-    for (size_t block_i = 0; block_i < meta.block_count; block_i++) {
+    for (size_t block_i = 0; block_i < meta.block_count; block_i += sample_resolution) {
         // In block_i'th block
         for (size_t sample_i = 0; sample_i < meta.samples_per_block; sample_i++) {
             // In sample_i'th sample
@@ -101,6 +106,10 @@ void draw(MasterChunk* master_chunk) {
                 amplitude = amplitude & pos_bitmask;
             }
             // Add `amplitude` to whatever heap object here
+            cairo_line_to(cr,
+                        (block_i * x_resolution),
+                        ((height/2)+(amplitude * y_resolution))
+                    );
         }
     }
     // Apply stroke
