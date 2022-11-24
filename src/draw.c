@@ -69,17 +69,21 @@ void draw(MasterChunk* master_chunk) {
     double height = 900;
     int sample_resolution = 25;
     double x_resolution = 0.01;
-    double y_resolution = 0.01;
+    double y_resolution = 0.005;
 
-    // Initialize cairo backend and surface to draw on
+    // Initialize cairo surface to draw on
     cairo_surface_t * surface =
         cairo_svg_surface_create("out.svg", width, height);
-    cairo_t * cr = cairo_create(surface);
 
-    // Make sure line is at correct starting point
-    cairo_move_to(cr, 0.0, (height/2));
-
-    // TODO: make sure we create a separate stroke for each channel (each sample)
+    // Array of cairo stroke objects representing each channel
+    cairo_t * strokes[meta.samples_per_block];
+    for (int i = 0; i < meta.samples_per_block; i++) {
+        // Create each stroke object
+        strokes[i] = cairo_create(surface);
+        // Make sure lines are at correct starting point
+        // TODO: calculate height at which each stroke needs to start
+        cairo_move_to(strokes[i], 0.0, ((i+1) * (height/(meta.samples_per_block+1))));
+    }
 
     // Iterate through each block and draw it to cairo surface
     for (size_t block_i = 0; block_i < meta.block_count; block_i += sample_resolution) {
@@ -105,18 +109,30 @@ void draw(MasterChunk* master_chunk) {
             } else {
                 amplitude = amplitude & pos_bitmask;
             }
-            // Add `amplitude` to whatever heap object here
-            cairo_line_to(cr,
-                        (block_i * x_resolution),
-                        ((height/2)+(amplitude * y_resolution))
-                    );
+
+            // Ayy yo what the fuck is this shit dawg! Refactor!
+            cairo_line_to(
+                                strokes[sample_i],
+                                (block_i * x_resolution),
+                                (
+                                    ((sample_i + 1) * (height/(meta.samples_per_block+1)))
+                                    +
+                                    (amplitude * y_resolution))
+                            );
         }
     }
-    // Apply stroke
-    cairo_stroke(cr);
-    cairo_close_path(cr);
+
+    // Apply each stroke
+    for (int i = 0; i < meta.samples_per_block; i++) {
+        cairo_stroke(strokes[i]);
+        cairo_close_path(strokes[i]);
+    }
 
     // This is required or nothing gets written to file
     cairo_surface_destroy(surface);
-    cairo_destroy(cr);
+
+    // Destroy each stroke object
+    for (int i = 0; i < meta.samples_per_block; i++) {
+        cairo_destroy(strokes[i]);
+    }
 }
