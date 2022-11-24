@@ -1,4 +1,3 @@
-#include "util.h"
 #include "parser.h"
 #include "draw.h"
 #include <stdint.h>
@@ -16,51 +15,8 @@ int main()
     // Close file since nothing left to be read from it.
     fclose(input_file);
 
-    // Create structures to pack raw PCM data into.
-
-    // Calculate bits and bytes per sample.
-    uint16_t bits_per_sample  = master_chunk->fmtChunk.bitsPerSample;
-    uint16_t bytes_per_sample = (bits_per_sample / 8);
-
-    // Calculate no. of samples per block = equal to no. of channels.
-    uint16_t samples_per_block = master_chunk->fmtChunk.channels;
-
-    // Calculate integral value of dataChunk.chunkSize.
-    uint32_t data_size = master_chunk->dataChunk.chunkSize;
-
-    // We can figure out the total no. of blocks since we have the total
-    //      size of the data.
-    size_t block_count;
-    block_count = data_size / (samples_per_block * bytes_per_sample);
-
-    // Calculate bytes per block. blockAlign is equal to bytes per block.
-    // uint16_t bytes_per_block = master_chunk->fmtChunk.blockAlign;
-
-    // A struct Sample represents the instantaneous sound data for one channel.
-    typedef struct {
-        // LSB-...-MSB repr. of instantaneous amplitude.
-        BYTE byte[bytes_per_sample];
-    } Sample;
-
-    // A struct block represents the instantaneous sound data for all channels.
-    typedef struct {
-        // 1 sample for each channel.
-        Sample sample[samples_per_block];
-    } Block;
-
-    // Treat "blocks" as an alias for master_chunk.dataChunk.data.
-    Block* blocks = master_chunk->dataChunk.data;
-
-    // By pointing a Block* to data, we can treat master_chunk.dataChunk.data as
-    //      an array of Block objects and use syntax like below -
-    //
-    // blocks[x].sample[y].byte[z]; <-- z'th byte of y'th sample of x'th block
-    //
-    // Now all data can be read by simply looping block_count times over blocks.
-    // See appendix for example.
-
-    // Send blocks to draw function
-    draw(blocks);
+    // Send data to draw function
+    draw(master_chunk);
 
     free(master_chunk->dataChunk.data);
     return 0;
