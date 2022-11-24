@@ -65,11 +65,12 @@ void draw(MasterChunk* master_chunk) {
     uint8_t MSB = 0;
 
     // TODO: un-hardcode these
-    double width = 1800;
-    double height = 900;
-    int sample_resolution = 25;
     double x_resolution = 0.01;
     double y_resolution = 0.005;
+    int sample_resolution = 15;
+
+    double width = meta.block_count * x_resolution;
+    double height = ((meta.samples_per_block * 2) * (((1<<meta.bits_per_sample) - 1) * y_resolution));
 
     // Initialize cairo surface to draw on
     cairo_surface_t * surface =
