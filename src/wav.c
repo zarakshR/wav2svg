@@ -5,9 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-int main()
+int main(int argc, char * argv[])
 {
-    FILE* input_file = fopen("sample.wav", "rb");
+    FILE* input_file = fopen(argv[1], "rb");
     if (input_file == NULL) { return 1; }
 
     MasterChunk* master_chunk = parseFile(input_file);
