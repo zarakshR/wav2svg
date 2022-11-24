@@ -1,5 +1,5 @@
 P=wav2svg
-CFLAGS=`pkg-config --cflags cairo` -Wall -iquote include/
+CFLAGS=`pkg-config --cflags cairo` -O3 -Wall --std=c11 -iquote include/
 CC=gcc
 BUILD_DIR=build
 SOURCE_DIR=src
