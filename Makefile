@@ -1,16 +1,35 @@
 P=wav2svg
-CFLAGS=`pkg-config --cflags cairo` -O3 -Wall --std=c11 -iquote include/
-CC=gcc
-BUILD_DIR=build
-SOURCE_DIR=src
+
 INCLUDE_DIR=include
+SOURCE_DIR=src
+OBJECT_DIR=obj
+BUILD_DIR=build
+
+CC=gcc
+CFLAGS=-Wall -Wextra --std=c18 -I$(INCLUDE_DIR)
 LDLIBS=`pkg-config --libs cairo`
 
-default: $(P)
-all: $(P) debug
+_DEPS=util.h draw.h parser.h
+DEPS=$(patsubst %, $(INCLUDE_DIR)/%.gch, $(_DEPS))
 
-$(P): $(SOURCE_DIR)/*.c $(INCLUDE_DIR)/*.h
-	$(CC) $(CFLAGS) -O3 -o $(BUILD_DIR)/$(P) $(SOURCE_DIR)/*.c $(INCLUDE_DIR)/*.h $(LDLIBS)
+_OBJS=wav.o draw.o parser.o
+OBJS=$(patsubst %,$(OBJECT_DIR)/%, $(_OBJS))
 
-debug: $(SOURCE_DIR)/*.c $(INCLUDE_DIR)/*.h
-	$(CC) $(CFLAGS) -g -O0 -o $(BUILD_DIR)/$(P)_debug $(SOURCE_DIR)/*.c $(INCLUDE_DIR)/*.h $(LDLIBS)
+all: default debug
+.SECONDARY: $(INCLUDE_DIR)/%.gch
+$(INCLUDE_DIR)/%.gch: $(INCLUDE_DIR)/%
+	$(CC) $< $(CFLAGS)
+
+$(OBJECT_DIR)/%.o: $(SOURCE_DIR)/%.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+default: $(OBJS)
+	$(CC) $(CFLAGS) -O3 -o $(BUILD_DIR)/$(P) $^ $(LDLIBS)
+
+debug: $(OBJS)
+	$(CC) $(CFLAGS) -fsanitize=address,undefined,integer-divide-by-zero -fno-omit-frame-pointer -g -O0 -o $(BUILD_DIR)/$(P)_debug $^ $(LDLIBS)
+
+.PHONY: clean
+clean:
+	rm -f $(OBJECT_DIR)/*.o
+	rm -f $(INCLUDE_DIR)/*.gch
