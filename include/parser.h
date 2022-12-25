@@ -1,13 +1,9 @@
-//
-// Created by zaraksh on 10/12/22.
-//
+#ifndef WAV2SVG_PARSER_H
+#define WAV2SVG_PARSER_H
 
 #include "util.h"
 #include <stdint.h>
 #include <stdio.h>
-
-#ifndef WAV2SVG_PARSER_H
-#define WAV2SVG_PARSER_H
 
 #define MASTER_CHUNK_HEADER_SIZE 12
 

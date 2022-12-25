@@ -1,9 +1,9 @@
+#ifndef WAV2SVG_DRAW_H
+#define WAV2SVG_DRAW_H
+
 #include "parser.h"
 #include <cairo/cairo.h>
 #include <cairo/cairo-svg.h>
-
-#ifndef WAV2SVG_DRAW_H
-#define WAV2SVG_DRAW_H
 
 void draw(MasterChunk* master_chunk);
 
